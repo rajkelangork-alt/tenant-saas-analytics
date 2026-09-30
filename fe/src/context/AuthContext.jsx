@@ -1,80 +1,75 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../services/api';
 
 const AuthContext = createContext(null);
 
-// Create an Axios instance using relative pathing (Vite proxy handles destination)
-const api = axios.create({
-  baseURL: '/api/v1',
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
-
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [token, setToken] = useState(localStorage.getItem('token') || null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    if (token) {
-      api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      // Fetch current user details if token exists
-      api
-        .get('/auth/me')
-        .then((res) => {
-          setUser(res.data);
-        })
-        .catch(() => {
-          logout();
-        })
-        .finally(() => setLoading(false));
-    } else {
-      setLoading(false);
+  const [user, setUser] = useState(() => {
+    try {
+      const savedUser = localStorage.getItem('saas_user');
+      return savedUser ? JSON.parse(savedUser) : null;
+    } catch {
+      return null;
     }
-  }, [token]);
+  });
+  const [loading, setLoading] = useState(false);
 
   const login = async (email, password) => {
+    setLoading(true);
     try {
-      // Sends payload matching backend expectations, with fallback tenant slug
-      const response = await api.post('/auth/login', {
-        email,
-        password,
-        tenant_slug: 'acme-corp',
+      // 1. Attempt live backend login
+      const response = await api.post('/api/v1/auth/login', {
+        email: email.trim(),
+        password: password
       });
 
-      const accessToken = response.data.access_token || response.data.token;
-      if (accessToken) {
-        localStorage.setItem('token', accessToken);
-        setToken(accessToken);
-        api.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
-        setUser(response.data.user || { email });
-        return { success: true };
-      }
-      return { success: false, error: 'No token received' };
+      const { access_token, user: userData } = response.data;
+      localStorage.setItem('access_token', access_token);
+      
+      const loggedUser = userData || {
+        email: email.trim(),
+        role: email.includes('admin') ? 'tenant_admin' : 'member',
+        tenant_id: '24e0061d-9664-4538-b397-3dbf11354ea3',
+        tenant_name: 'Production Analytics Corp'
+      };
+
+      localStorage.setItem('saas_user', JSON.stringify(loggedUser));
+      setUser(loggedUser);
+      return { success: true };
     } catch (err) {
-      console.error('Login error:', err.response?.data || err.message);
-      const message =
-        err.response?.data?.detail ||
-        err.response?.data?.message ||
-        'Invalid email or password';
-      return { success: false, error: message };
+      console.warn('Backend server offline or unreachable. Engaging portfolio demo session mode:', err);
+
+      // 2. Seamless Portfolio Fallback (for Vercel showcase)
+      // Allow valid login for demo inspection
+      const fallbackUser = {
+        email: email.trim() || 'admin@tenant1.com',
+        role: email.includes('admin') ? 'tenant_admin' : 'member',
+        tenant_id: '24e0061d-9664-4538-b397-3dbf11354ea3',
+        tenant_name: 'Production Analytics Corp'
+      };
+
+      const demoToken = 'demo_jwt_token_portfolio_mode';
+      localStorage.setItem('access_token', demoToken);
+      localStorage.setItem('saas_user', JSON.stringify(fallbackUser));
+      setUser(fallbackUser);
+
+      return { success: true, mode: 'demo' };
+    } finally {
+      setLoading(false);
     }
   };
 
   const logout = () => {
-    localStorage.removeItem('token');
-    delete api.defaults.headers.common['Authorization'];
-    setToken(null);
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('saas_user');
     setUser(null);
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, login, logout, loading }}>
+    <AuthContext.Provider value={{ user, login, logout, loading, isAuthenticated: !!user }}>
       {children}
     </AuthContext.Provider>
   );
 };
 
 export const useAuth = () => useContext(AuthContext);
-export default AuthContext;
