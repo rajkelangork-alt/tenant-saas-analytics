@@ -1,0 +1,23 @@
+# Environment & Secrets (NEVER PUSH)
+.env
+.env.*
+!.env.example
+
+# Python
+be/venv/
+be/.venv/
+**/__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+
+# Node / React
+fe/node_modules/
+fe/dist/
+fe/.vite/
+
+# System & IDE
+.vscode/
+.DS_Store
+Thumbs.db
