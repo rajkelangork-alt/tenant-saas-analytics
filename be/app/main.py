@@ -19,16 +19,17 @@ app: FastAPI = FastAPI(
 )
 
 # Explicitly guarantee both localhost and 127.0.0.1 origins for frontend Vite dev server
-configured_origins = [str(origin) for origin in settings.CORS_ORIGINS] if settings.CORS_ORIGINS else []
+configured_origins = [
+    "http://localhost:5173",
+    "http://localhost:3000",
+    "http://127.0.0.1:5173",
+    "https://tenant-saas-analytics.vercel.app",
+    "*"  # Allows dynamic preview URLs from Vercel
+]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:5173",
-        "http://127.0.0.1:5173",
-        "http://localhost:3000",
-        "http://127.0.0.1:3000",
-    ],
+    allow_origins=configured_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
