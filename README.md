@@ -2,23 +2,20 @@
 
 > Real-time tenant-isolated observability, telemetry stream processing, and RBAC workspace management for modern SaaS applications.
 
-[!\[CI](https://github.com/rajkelangork-alt/tenant-saas-analytics/actions/workflows/ci.yml/badge.svg)(https://github.com/rajkelangork-alt/tenant-saas-analytics/actions)
-!\[Python](https://img.shields.io/badge/python-3.12-blue)
-!\[FastAPI](https://img.shields.io/badge/FastAPI-009688)
-!\[React](https://img.shields.io/badge/React-18-61DAFB)
-!\[License](https://img.shields.io/badge/license-MIT-green)
+[![CI](https://github.com/rajkelangork-alt/tenant-saas-analytics/actions/workflows/ci.yml/badge.svg)](https://github.com/rajkelangork-alt/tenant-saas-analytics/actions/workflows/ci.yml)
+[![Python](https://img.shields.io/badge/python-3.12-blue)](https://www.python.org/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
+[![React](https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=black)](https://react.dev/)
+[![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
-**Live demo:** [tenant-saas-analytics.vercel.app](https://tenant-saas-analytics.vercel.app) |
-**API docs:** [tenant-saas-analytics-api.onrender.com/docs](https://tenant-saas-analytics-api.onrender.com/docs)
+**Live demo:** [tenant-saas-analytics.vercel.app](https://tenant-saas-analytics.vercel.app) | **API docs:** [tenant-saas-analytics-api.onrender.com/docs](https://tenant-saas-analytics-api.onrender.com/docs)
 
 ### Demo logins
-```
-|Role         |Email                |Password       |Access                                                            |
-|             |                     |               |                                                                  |
-|Tenant Admin |`admin@tenant1.com`  |`Admin@12345`  |Full workspace administration, API key rotation, team provisioning|
-|Tenant Member|`analyst@tenant1.com`|`Analyst@12345`|Read-only analytics inspection, telemetry logs                    |
 
-```
+| Role | Email | Password | Access |
+| :--- | :--- | :--- | :--- |
+| Tenant Admin | `admin@tenant1.com` | `Admin@12345` | Full workspace administration, API key rotation, team provisioning |
+| Tenant Member | `analyst@tenant1.com` | `Analyst@12345` | Read-only analytics inspection, telemetry logs |
 
 ## 1. Problem & Solution
 
@@ -47,14 +44,14 @@ flowchart LR
 ```
 
 ### Design decisions
-```
+
 |Decision        |Choice                             |Why                           |Alternative      |
 |                |                                   |                              |                 |
 |Multi-tenancy   |Shared DB + tenant UUID column     |Lower cost, simpler operations|Schema-per-tenant|
 |Real-time stream|WebSockets                         |Instant push, no polling      |SSE, long polling|
 |Authentication  |Stateless JWT (HS256) + RBAC       |Scales horizontally           |Redis sessions   |
 |Database        |PostgreSQL + async SQLAlchemy      |Non-blocking pooling          |MongoDB, SQLite  |
-```
+
 Full write-ups: [`docs/architecture.md`](docs/architecture.md) and [`docs/adr/`](docs/adr/) (Architecture Decision Records).
 
 ## 4. Tech Stack
