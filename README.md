@@ -47,14 +47,14 @@ flowchart LR
 ```
 
 ### Design decisions
-
+```
 |Decision        |Choice                             |Why                           |Alternative      |
 |                |                                   |                              |                 |
 |Multi-tenancy   |Shared DB + tenant UUID column     |Lower cost, simpler operations|Schema-per-tenant|
 |Real-time stream|WebSockets                         |Instant push, no polling      |SSE, long polling|
 |Authentication  |Stateless JWT (HS256) + RBAC       |Scales horizontally           |Redis sessions   |
 |Database        |PostgreSQL + async SQLAlchemy      |Non-blocking pooling          |MongoDB, SQLite  |
-
+```
 Full write-ups: [`docs/architecture.md`](docs/architecture.md) and [`docs/adr/`](docs/adr/) (Architecture Decision Records).
 
 ## 4. Tech Stack
